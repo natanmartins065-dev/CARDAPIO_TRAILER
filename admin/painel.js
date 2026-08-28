@@ -19,6 +19,8 @@ const STATUS_LABEL = {
 
 verificarLoginEIniciar();
 
+
+
 async function verificarLoginEIniciar() {
   const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -30,6 +32,12 @@ async function verificarLoginEIniciar() {
   carregarPedidos();
   iniciarEscutaTempoReal();
 }
+
+supabaseClient.auth.onAuthStateChange((evento, sessao) => {
+  if (evento === "SIGNED_OUT" || !sessao) {
+    window.location.href = "login.html";
+  }
+});
 
 function iniciarEscutaTempoReal() {
   supabaseClient

@@ -7,6 +7,13 @@ const listaMolhosAdmin = document.getElementById("lista-molhos-admin");
 
 verificarLoginEIniciar();
 
+
+supabaseClient.auth.onAuthStateChange((evento, sessao) => {
+  if (evento === "SIGNED_OUT" || !sessao) {
+    window.location.href = "login.html";
+  }
+});
+
 async function verificarLoginEIniciar() {
   const { data: { session } } = await supabaseClient.auth.getSession();
 

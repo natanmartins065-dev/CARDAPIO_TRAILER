@@ -567,6 +567,12 @@ btnConfirmarPedido.addEventListener("click", async () => {
     return;
   }
 
+  const apenasNumeros = whatsapp.replace(/\D/g, "");
+  if (apenasNumeros.length < 10 || apenasNumeros.length > 11) {
+    alert("Digite um WhatsApp válido, com DDD (ex: 35 99999-9999).");
+    return;
+  }
+
   const itemsParaEnviar = carrinho.map((item) => {
     if (item.tipo === "macarrao") {
       return {
