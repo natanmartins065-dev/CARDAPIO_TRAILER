@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardápio - Trailer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TELA DE ABERTURA (aparece ao escanear o QR Code) -->
+  <div class="tela-abertura" id="tela-abertura">
+    <button type="button" class="abertura-logo-botao" id="btn-abrir-cardapio" aria-label="Abrir cardápio">
+      <img src="assets/logo.png" alt="Logo do trailer" class="abertura-logo">
+    </button>
+
+    <svg class="abertura-seta" viewBox="0 0 130 150" xmlns="http://www.w3.org/2000/svg">
+      <path class="seta-linha" d="M12,12 C 45,25 15,75 58,95 C 80,108 88,102 100,118" fill="none" stroke="#F2811D" stroke-width="2.5" stroke-linecap="round"/>
+      <path class="seta-ponta" d="M88,110 L101,120 L92,131" fill="none" stroke="#F2811D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <span class="abertura-texto">clique para abrir<br>o cardápio</span>
+  </div>
+
+  <!-- APP DO CARDÁPIO (fica escondido até o clique na tela de abertura) -->
+  <div class="app-cardapio escondido" id="app-cardapio">
+
+    <header class="topo-cliente">
+      <img src="assets/logo.png" alt="Logo do trailer" class="logo-topo">
+    </header>
+
+    <!-- BARRA DE PROGRESSO DO QUIZ -->
+    <div class="progresso-quiz" id="progresso-quiz">
+      <div class="progresso-passo ativo" data-passo="1">🍝<span>Massa</span></div>
+      <div class="progresso-linha"></div>
+      <div class="progresso-passo" data-passo="2">🍅<span>Molho</span></div>
+      <div class="progresso-linha"></div>
+      <div class="progresso-passo" data-passo="3">🥤<span>Bebida</span></div>
+    </div>
+
+    <main class="conteudo-quiz">
+
+      <!-- PASSO 1: MASSA -->
+      <section class="passo-quiz" id="passo-1" data-passo="1">
+        <h2>🍝 Escolha sua massa</h2>
+        <div class="grade-opcoes" id="lista-massas">
+          <p class="carregando">Carregando...</p>
+        </div>
+
+        <div class="separador-ou escondido" id="separador-outros-produtos">🍽️ Ou peça um já pronto</div>
+        <div class="grade-opcoes" id="lista-outros-produtos"></div>
+      </section>
+
+      <!-- PASSO 2: MOLHO + TAMANHO -->
+      <section class="passo-quiz escondido" id="passo-2" data-passo="2">
+        <h2>🍅 Escolha seu molho</h2>
+        <button type="button" id="btn-voltar-molho" class="btn-voltar">← Voltar</button>
+        <div class="grade-opcoes lista-vertical" id="lista-molhos">
+          <p class="carregando">Carregando...</p>
+        </div>
+
+        <h3 class="titulo-secundario">🧀 Adicionais</h3>
+        <div class="aviso-adicional">
+          ℹ️ Toque no adicional para escolher, toque novamente para adicionar mais unidades
+        </div>
+        <div class="grade-opcoes lista-vertical" id="lista-adicionais">
+          <p class="carregando">Carregando...</p>
+        </div>
+
+        <textarea id="observacao-molho" class="campo-textarea" placeholder="Alguma outra observação? (opcional)" rows="2"></textarea>
+        <button id="btn-add-carrinho" class="btn-primario" disabled>✅ Adicionar ao pedido</button>
+      </section>
+
+      <!-- PASSO 3: BEBIDA -->
+      <section class="passo-quiz escondido" id="passo-3" data-passo="3">
+        <h2>🥤 Quer uma bebida?</h2>
+        <button type="button" id="btn-voltar-bebida" class="btn-voltar">← Voltar</button>
+        <div class="aviso-adicional">
+          ℹ️ Toque novamente na bebida para adicionar mais unidades
+        </div>
+        <div class="grade-opcoes lista-vertical" id="lista-bebidas">
+          <p class="carregando">Carregando...</p>
+        </div>
+        <button id="btn-pular-bebida" class="btn-secundario">➡️ Continuar sem bebida</button>
+      </section>
+
+      <!-- RESUMO DO PEDIDO (sempre visível a partir de 1 item) -->
+      <section class="resumo-pedido escondido" id="resumo-pedido">
+        <button type="button" id="btn-voltar-resumo" class="btn-voltar">← Voltar</button>
+        <h2>🛒 Seu pedido</h2>
+        <div id="itens-carrinho" class="itens-carrinho"></div>
+        <div class="resumo-total">
+          <span>Total</span>
+          <strong id="total-carrinho">R$ 0,00</strong>
+        </div>
+        <div class="resumo-acoes">
+          <button id="btn-pedir-outro" class="btn-secundario">➕ Pedir outro macarrão</button>
+          <button id="btn-finalizar" class="btn-primario">🎉 Finalizar pedido</button>
+        </div>
+      </section>
+
+      <!-- FORMULÁRIO DE DADOS DO CLIENTE (aparece ao finalizar) -->
+      <section class="passo-quiz escondido" id="passo-dados-cliente">
+        <h2>📝 Seus dados</h2>
+        <div class="aviso-adicional">
+          💵 O pagamento é feito na retirada, direto na maquininha do trailer.
+        </div>
+        <input type="text" id="input-nome-cliente" class="campo-input" placeholder="Seu nome" required>
+        <input type="tel" id="input-whatsapp-cliente" class="campo-input" placeholder="WhatsApp (com DDD)" required>
+        <button id="btn-confirmar-pedido" class="btn-primario">✅ Confirmar pedido</button>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>

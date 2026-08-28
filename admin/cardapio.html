@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - Cardápio</title>
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="tela-painel">
+
+  <header class="topo-painel">
+    <div class="topo-painel-titulo">
+      <div class="logo-badge logo-badge--pequeno"><img src="../assets/logo.png" alt="Logo do trailer"></div>
+      <h1>Cardápio</h1>
+    </div>
+    <div class="topo-painel-acoes">
+      <a href="index.html" class="link-nav">Pedidos</a>
+      <button id="btn-sair" class="btn-sair">Sair</button>
+    </div>
+  </header>
+
+  <div class="grade-hub">
+    <a href="categorias.html" class="cartao-hub cartao-hub--categorias">
+      <div class="cartao-hub-icone">📋</div>
+      <div class="cartao-hub-nome">Categorias</div>
+    </a>
+    <a href="produtos.html" class="cartao-hub cartao-hub--produtos">
+      <div class="cartao-hub-icone">🥤</div>
+      <div class="cartao-hub-nome">Produtos</div>
+    </a>
+    <a href="massas.html" class="cartao-hub cartao-hub--massas">
+      <div class="cartao-hub-icone">🍝</div>
+      <div class="cartao-hub-nome">Massas</div>
+    </a>
+    <a href="molhos.html" class="cartao-hub cartao-hub--molhos">
+      <div class="cartao-hub-icone">🍅</div>
+      <div class="cartao-hub-nome">Molhos</div>
+    </a>
+    <a href="adicionais.html" class="cartao-hub cartao-hub--adicionais">
+      <div class="cartao-hub-icone">🧀</div>
+      <div class="cartao-hub-nome">Adicionais</div>
+    </a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="hub.js"></script>
+
+</body>
+</html>

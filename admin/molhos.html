@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - Molhos</title>
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="tela-painel">
+
+  <a href="cardapio.html" class="btn-voltar-secao">← Voltar</a>
+
+  <section class="secao-produtos">
+    <h2>🍅 Molhos</h2>
+
+    <form id="form-molho" class="form-produto">
+      <input type="text" id="input-nome-molho" class="campo-input" placeholder="Nome do molho" required>
+      <input type="text" id="input-descricao-molho" class="campo-input" placeholder="Descrição (o que vem nele)">
+      <input type="number" id="input-preco-p-molho" class="campo-input" placeholder="Preço P (ex: 18.00)" step="0.01" min="0" required>
+      <input type="number" id="input-preco-g-molho" class="campo-input" placeholder="Preço G (ex: 24.00)" step="0.01" min="0" required>
+      <button type="submit" class="btn-primario btn-avancar">Adicionar molho</button>
+    </form>
+
+    <div id="lista-molhos-admin" class="lista-produtos">
+      <p class="carregando">Carregando molhos...</p>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="molhos.js"></script>
+
+</body>
+</html>

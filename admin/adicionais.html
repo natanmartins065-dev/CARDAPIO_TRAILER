@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - Adicionais</title>
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="tela-painel">
+
+  <a href="cardapio.html" class="btn-voltar-secao">← Voltar</a>
+
+  <section class="secao-produtos">
+    <h2>🧀 Adicionais</h2>
+
+    <form id="form-adicional" class="form-produto">
+      <input type="text" id="input-nome-adicional" class="campo-input" placeholder="Nome do adicional" required>
+      <input type="number" id="input-preco-adicional" class="campo-input" placeholder="Preço (ex: 3.00)" step="0.01" min="0" required>
+      <button type="submit" class="btn-primario btn-avancar">Adicionar</button>
+    </form>
+
+    <div id="lista-adicionais-admin" class="lista-produtos">
+      <p class="carregando">Carregando adicionais...</p>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="adicionais.js"></script>
+
+</body>
+</html>

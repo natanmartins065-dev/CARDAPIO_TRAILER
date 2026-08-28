@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - Categorias</title>
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="tela-painel">
+
+  <a href="cardapio.html" class="btn-voltar-secao">← Voltar</a>
+
+  <section class="secao-categorias">
+    <h2>📋 Categorias</h2>
+
+    <form id="form-categoria" class="form-inline">
+      <input type="text" id="input-nome-categoria" class="campo-input" placeholder="Nome da nova categoria" required>
+      <button type="submit" class="btn-primario btn-avancar">Adicionar</button>
+    </form>
+
+    <div id="lista-categorias" class="lista-categorias">
+      <p class="carregando">Carregando categorias...</p>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="categorias.js"></script>
+
+</body>
+</html>

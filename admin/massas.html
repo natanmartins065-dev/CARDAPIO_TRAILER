@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - Massas</title>
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="tela-painel">
+
+  <a href="cardapio.html" class="btn-voltar-secao">← Voltar</a>
+
+  <section class="secao-produtos">
+    <h2>🍝 Massas</h2>
+
+    <form id="form-massa" class="form-produto">
+      <input type="text" id="input-nome-massa" class="campo-input" placeholder="Nome da massa" required>
+      <button type="submit" class="btn-primario btn-avancar">Adicionar massa</button>
+    </form>
+
+    <div id="lista-massas-admin" class="lista-produtos">
+      <p class="carregando">Carregando massas...</p>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="massas.js"></script>
+
+</body>
+</html>

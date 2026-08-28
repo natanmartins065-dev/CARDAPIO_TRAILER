@@ -1,0 +1,771 @@
+const listaCategorias = document.getElementById("lista-categorias");
+const formCategoria = document.getElementById("form-categoria");
+const inputNomeCategoria = document.getElementById("input-nome-categoria");
+const btnSair = document.getElementById("btn-sair");
+
+const listaProdutos = document.getElementById("lista-produtos");
+const formProduto = document.getElementById("form-produto");
+const selectCategoriaProduto = document.getElementById("select-categoria-produto");
+const inputNomeProduto = document.getElementById("input-nome-produto");
+const inputDescricaoProduto = document.getElementById("input-descricao-produto");
+const inputPrecoProduto = document.getElementById("input-preco-produto");
+
+const formMassa = document.getElementById("form-massa");
+const inputNomeMassa = document.getElementById("input-nome-massa");
+const listaMassasAdmin = document.getElementById("lista-massas-admin");
+
+const formMolho = document.getElementById("form-molho");
+const inputNomeMolho = document.getElementById("input-nome-molho");
+const inputDescricaoMolho = document.getElementById("input-descricao-molho");
+const inputPrecoPMolho = document.getElementById("input-preco-p-molho");
+const inputPrecoGMolho = document.getElementById("input-preco-g-molho");
+const listaMolhosAdmin = document.getElementById("lista-molhos-admin");
+
+const formAdicional = document.getElementById("form-adicional");
+const inputNomeAdicional = document.getElementById("input-nome-adicional");
+const inputPrecoAdicional = document.getElementById("input-preco-adicional");
+const listaAdicionaisAdmin = document.getElementById("lista-adicionais-admin");
+
+let categoriasCache = [];
+
+verificarLoginEIniciar();
+
+async function verificarLoginEIniciar() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  await carregarCategorias();
+  carregarProdutos();
+  carregarMassas();
+  carregarMolhos();
+  carregarAdicionaisAdmin();
+}
+
+btnSair.addEventListener("click", async () => {
+  await supabaseClient.auth.signOut();
+  window.location.href = "login.html";
+});
+
+// ===== CATEGORIAS =====
+
+formCategoria.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nome = inputNomeCategoria.value.trim();
+  if (!nome) return;
+
+  const { data: existentes } = await supabaseClient
+    .from("categories")
+    .select("display_order")
+    .order("display_order", { ascending: false })
+    .limit(1);
+
+  const proximaOrdem = existentes && existentes.length > 0 ? existentes[0].display_order + 1 : 0;
+
+  const { error } = await supabaseClient
+    .from("categories")
+    .insert({ name: nome, display_order: proximaOrdem });
+
+  if (error) {
+    alert("Erro ao adicionar categoria: " + error.message);
+    return;
+  }
+
+  inputNomeCategoria.value = "";
+  await carregarCategorias();
+  carregarProdutos();
+});
+
+async function carregarCategorias() {
+  const { data: categorias, error } = await supabaseClient
+    .from("categories")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    listaCategorias.innerHTML = `<p class="erro-cliente">Erro ao carregar categorias: ${error.message}</p>`;
+    return;
+  }
+
+  categoriasCache = categorias;
+
+  if (categorias.length === 0) {
+    listaCategorias.innerHTML = `<p class="carregando">Nenhuma categoria ainda.</p>`;
+  } else {
+    listaCategorias.innerHTML = "";
+    categorias.forEach((categoria) => {
+      listaCategorias.appendChild(criarLinhaCategoria(categoria));
+    });
+  }
+
+  // Preenche o <select> do formulário de produto
+  selectCategoriaProduto.innerHTML = `<option value="">Categoria...</option>`;
+  categorias.forEach((categoria) => {
+    const opcao = document.createElement("option");
+    opcao.value = categoria.id;
+    opcao.textContent = categoria.name;
+    selectCategoriaProduto.appendChild(opcao);
+  });
+}
+
+function criarLinhaCategoria(categoria) {
+  const linha = document.createElement("div");
+  linha.className = "linha-categoria";
+
+  linha.innerHTML = `<span>${categoria.name}</span>`;
+
+  const btnExcluir = document.createElement("button");
+  btnExcluir.className = "btn-cancelar";
+  btnExcluir.textContent = "Excluir";
+  btnExcluir.addEventListener("click", () => excluirCategoria(categoria.id, categoria.name));
+  linha.appendChild(btnExcluir);
+
+  return linha;
+}
+
+async function excluirCategoria(id, nome) {
+  const confirmar = confirm(`Excluir a categoria "${nome}"? Isso só funciona se não houver produtos nela.`);
+  if (!confirmar) return;
+
+  const { error } = await supabaseClient.from("categories").delete().eq("id", id);
+
+  if (error) {
+    alert("Não foi possível excluir. Provavelmente ainda existem produtos nessa categoria. Detalhe: " + error.message);
+    return;
+  }
+
+  await carregarCategorias();
+  carregarProdutos();
+}
+
+// ===== PRODUTOS =====
+
+formProduto.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const categoryId = selectCategoriaProduto.value;
+  const nome = inputNomeProduto.value.trim();
+  const descricao = inputDescricaoProduto.value.trim();
+  const preco = parseFloat(inputPrecoProduto.value);
+
+  if (!categoryId || !nome || isNaN(preco)) {
+    alert("Preencha categoria, nome e um preço válido.");
+    return;
+  }
+
+  const { error } = await supabaseClient.from("products").insert({
+    category_id: categoryId,
+    name: nome,
+    description: descricao || null,
+    price: preco,
+    is_active: true,
+    display_order: 0
+  });
+
+  if (error) {
+    alert("Erro ao adicionar produto: " + error.message);
+    return;
+  }
+
+  formProduto.reset();
+  carregarProdutos();
+});
+
+async function carregarProdutos() {
+  const { data: produtos, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    listaProdutos.innerHTML = `<p class="erro-cliente">Erro ao carregar produtos: ${error.message}</p>`;
+    return;
+  }
+
+  if (produtos.length === 0) {
+    listaProdutos.innerHTML = `<p class="carregando">Nenhum produto ainda.</p>`;
+    return;
+  }
+
+  listaProdutos.innerHTML = "";
+
+  categoriasCache.forEach((categoria) => {
+    const produtosDaCategoria = produtos.filter((p) => p.category_id === categoria.id);
+    if (produtosDaCategoria.length === 0) return;
+
+    const grupo = document.createElement("div");
+    grupo.className = "grupo-categoria-produtos";
+    grupo.innerHTML = `<h3>${categoria.name}</h3>`;
+
+    produtosDaCategoria.forEach((produto) => {
+      grupo.appendChild(criarCardProduto(produto));
+    });
+
+    listaProdutos.appendChild(grupo);
+  });
+}
+
+function criarCardProduto(produto) {
+  const card = document.createElement("div");
+  card.className = "card-produto";
+  renderizarModoVisualizacao(card, produto);
+  return card;
+}
+
+function renderizarModoVisualizacao(card, produto) {
+  card.innerHTML = `
+    <div class="card-produto-topo">
+      <span class="card-produto-nome">${produto.name}</span>
+      <button class="${produto.is_active ? 'badge-ativo' : 'badge-inativo'}">
+        ${produto.is_active ? 'Ativo' : 'Inativo'}
+      </button>
+    </div>
+    ${produto.description ? `<div class="card-produto-desc">${produto.description}</div>` : ""}
+    <div class="card-produto-preco">R$ ${Number(produto.price).toFixed(2)}</div>
+    <div class="card-produto-acoes">
+      <button class="btn-editar">Editar</button>
+      <button class="btn-cancelar">Excluir</button>
+    </div>
+  `;
+
+  card.querySelector(".badge-ativo, .badge-inativo").addEventListener("click", () =>
+    alternarAtivo(produto)
+  );
+  card.querySelector(".btn-editar").addEventListener("click", () =>
+    renderizarModoEdicao(card, produto)
+  );
+  card.querySelector(".btn-cancelar").addEventListener("click", () =>
+    excluirProduto(produto.id, produto.name)
+  );
+}
+
+function renderizarModoEdicao(card, produto) {
+  card.innerHTML = `
+    <input type="text" class="campo-input edit-nome" value="${produto.name}">
+    <input type="text" class="campo-input edit-descricao" value="${produto.description || ""}" placeholder="Descrição">
+    <input type="number" class="campo-input edit-preco" value="${produto.price}" step="0.01" min="0">
+    <div class="card-produto-acoes">
+      <button class="btn-editar btn-salvar">Salvar</button>
+      <button class="btn-cancelar btn-cancelar-edicao">Cancelar</button>
+    </div>
+  `;
+
+  card.querySelector(".btn-salvar").addEventListener("click", async () => {
+    const novoNome = card.querySelector(".edit-nome").value.trim();
+    const novaDescricao = card.querySelector(".edit-descricao").value.trim();
+    const novoPreco = parseFloat(card.querySelector(".edit-preco").value);
+
+    if (!novoNome || isNaN(novoPreco)) {
+      alert("Preencha um nome e um preço válido.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("products")
+      .update({ name: novoNome, description: novaDescricao || null, price: novoPreco })
+      .eq("id", produto.id);
+
+    if (error) {
+      alert("Erro ao salvar: " + error.message);
+      return;
+    }
+
+    carregarProdutos();
+  });
+
+  card.querySelector(".btn-cancelar-edicao").addEventListener("click", () => {
+    renderizarModoVisualizacao(card, produto);
+  });
+}
+
+async function alternarAtivo(produto) {
+  const { error } = await supabaseClient
+    .from("products")
+    .update({ is_active: !produto.is_active })
+    .eq("id", produto.id);
+
+  if (error) {
+    alert("Erro ao atualizar: " + error.message);
+    return;
+  }
+
+  carregarProdutos();
+}
+
+async function excluirProduto(id, nome) {
+  const confirmar = confirm(`Excluir o produto "${nome}"? Isso só funciona se ele nunca tiver sido pedido.`);
+  if (!confirmar) return;
+
+  const { error } = await supabaseClient.from("products").delete().eq("id", id);
+
+  if (error) {
+    alert("Não foi possível excluir. Provavelmente esse produto já apareceu em algum pedido. Detalhe: " + error.message);
+    return;
+  }
+
+  carregarProdutos();
+}
+
+
+// ===== MASSAS =====
+
+formMassa.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nome = inputNomeMassa.value.trim();
+  if (!nome) return;
+
+  const { data: existentes } = await supabaseClient
+    .from("massas")
+    .select("display_order")
+    .order("display_order", { ascending: false })
+    .limit(1);
+
+  const proximaOrdem = existentes && existentes.length > 0 ? existentes[0].display_order + 1 : 0;
+
+  const { error } = await supabaseClient
+    .from("massas")
+    .insert({ name: nome, active: true, display_order: proximaOrdem });
+
+  if (error) {
+    alert("Erro ao adicionar massa: " + error.message);
+    return;
+  }
+
+  inputNomeMassa.value = "";
+  carregarMassas();
+});
+
+async function carregarMassas() {
+  const { data: massas, error } = await supabaseClient
+    .from("massas")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    listaMassasAdmin.innerHTML = `<p class="erro-cliente">Erro ao carregar massas: ${error.message}</p>`;
+    return;
+  }
+
+  if (massas.length === 0) {
+    listaMassasAdmin.innerHTML = `<p class="carregando">Nenhuma massa ainda.</p>`;
+    return;
+  }
+
+  listaMassasAdmin.innerHTML = "";
+  massas.forEach((massa) => {
+    listaMassasAdmin.appendChild(criarCardMassa(massa));
+  });
+}
+
+function criarCardMassa(massa) {
+  const card = document.createElement("div");
+  card.className = "card-produto";
+  renderizarMassaVisualizacao(card, massa);
+  return card;
+}
+
+function renderizarMassaVisualizacao(card, massa) {
+  card.innerHTML = `
+    <div class="card-produto-topo">
+      <span class="card-produto-nome">${massa.name}</span>
+      <button class="${massa.active ? 'badge-ativo' : 'badge-inativo'}">
+        ${massa.active ? 'Ativo' : 'Inativo'}
+      </button>
+    </div>
+    <div class="card-produto-acoes">
+      <button class="btn-editar">Editar</button>
+      <button class="btn-cancelar">Excluir</button>
+    </div>
+  `;
+
+  card.querySelector(".badge-ativo, .badge-inativo").addEventListener("click", () =>
+    alternarAtivoMassa(massa)
+  );
+  card.querySelector(".btn-editar").addEventListener("click", () =>
+    renderizarMassaEdicao(card, massa)
+  );
+  card.querySelector(".btn-cancelar").addEventListener("click", () =>
+    excluirMassa(massa.id, massa.name)
+  );
+}
+
+function renderizarMassaEdicao(card, massa) {
+  card.innerHTML = `
+    <input type="text" class="campo-input edit-nome" value="${massa.name}">
+    <div class="card-produto-acoes">
+      <button class="btn-editar btn-salvar">Salvar</button>
+      <button class="btn-cancelar btn-cancelar-edicao">Cancelar</button>
+    </div>
+  `;
+
+  card.querySelector(".btn-salvar").addEventListener("click", async () => {
+    const novoNome = card.querySelector(".edit-nome").value.trim();
+
+    if (!novoNome) {
+      alert("Preencha um nome.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("massas")
+      .update({ name: novoNome })
+      .eq("id", massa.id);
+
+    if (error) {
+      alert("Erro ao salvar: " + error.message);
+      return;
+    }
+
+    carregarMassas();
+  });
+
+  card.querySelector(".btn-cancelar-edicao").addEventListener("click", () => {
+    renderizarMassaVisualizacao(card, massa);
+  });
+}
+
+async function alternarAtivoMassa(massa) {
+  const { error } = await supabaseClient
+    .from("massas")
+    .update({ active: !massa.active })
+    .eq("id", massa.id);
+
+  if (error) {
+    alert("Erro ao atualizar: " + error.message);
+    return;
+  }
+
+  carregarMassas();
+}
+
+async function excluirMassa(id, nome) {
+  const confirmar = confirm(`Excluir a massa "${nome}"? Isso só funciona se ela nunca tiver sido pedida.`);
+  if (!confirmar) return;
+
+  const { error } = await supabaseClient.from("massas").delete().eq("id", id);
+
+  if (error) {
+    alert("Não foi possível excluir. Provavelmente essa massa já apareceu em algum pedido. Detalhe: " + error.message);
+    return;
+  }
+
+  carregarMassas();
+}
+
+
+// ===== MOLHOS =====
+
+formMolho.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nome = inputNomeMolho.value.trim();
+  const descricao = inputDescricaoMolho.value.trim();
+  const precoP = parseFloat(inputPrecoPMolho.value);
+  const precoG = parseFloat(inputPrecoGMolho.value);
+
+  if (!nome || isNaN(precoP) || isNaN(precoG)) {
+    alert("Preencha nome e os dois preços corretamente.");
+    return;
+  }
+
+  const { data: existentes } = await supabaseClient
+    .from("molhos")
+    .select("display_order")
+    .order("display_order", { ascending: false })
+    .limit(1);
+
+  const proximaOrdem = existentes && existentes.length > 0 ? existentes[0].display_order + 1 : 0;
+
+  const { error } = await supabaseClient
+    .from("molhos")
+    .insert({ name: nome, description: descricao || null, preco_p: precoP, preco_g: precoG, active: true, display_order: proximaOrdem });
+
+  if (error) {
+    alert("Erro ao adicionar molho: " + error.message);
+    return;
+  }
+
+  formMolho.reset();
+  carregarMolhos();
+});
+
+async function carregarMolhos() {
+  const { data: molhos, error } = await supabaseClient
+    .from("molhos")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    listaMolhosAdmin.innerHTML = `<p class="erro-cliente">Erro ao carregar molhos: ${error.message}</p>`;
+    return;
+  }
+
+  if (molhos.length === 0) {
+    listaMolhosAdmin.innerHTML = `<p class="carregando">Nenhum molho ainda.</p>`;
+    return;
+  }
+
+  listaMolhosAdmin.innerHTML = "";
+  molhos.forEach((molho) => {
+    listaMolhosAdmin.appendChild(criarCardMolho(molho));
+  });
+}
+
+function criarCardMolho(molho) {
+  const card = document.createElement("div");
+  card.className = "card-produto";
+  renderizarMolhoVisualizacao(card, molho);
+  return card;
+}
+
+function renderizarMolhoVisualizacao(card, molho) {
+  card.innerHTML = `
+    <div class="card-produto-topo">
+      <span class="card-produto-nome">${molho.name}</span>
+      <button class="${molho.active ? 'badge-ativo' : 'badge-inativo'}">
+        ${molho.active ? 'Ativo' : 'Inativo'}
+      </button>
+    </div>
+    ${molho.description ? `<div class="card-produto-desc">${molho.description}</div>` : ""}
+    <div class="card-produto-desc">P — R$ ${Number(molho.preco_p).toFixed(2)} &nbsp;|&nbsp; G — R$ ${Number(molho.preco_g).toFixed(2)}</div>
+    <div class="card-produto-acoes">
+      <button class="btn-editar">Editar</button>
+      <button class="btn-cancelar">Excluir</button>
+    </div>
+  `;
+
+  card.querySelector(".badge-ativo, .badge-inativo").addEventListener("click", () =>
+    alternarAtivoMolho(molho)
+  );
+  card.querySelector(".btn-editar").addEventListener("click", () =>
+    renderizarMolhoEdicao(card, molho)
+  );
+  card.querySelector(".btn-cancelar").addEventListener("click", () =>
+    excluirMolho(molho.id, molho.name)
+  );
+}
+
+function renderizarMolhoEdicao(card, molho) {
+  card.innerHTML = `
+    <input type="text" class="campo-input edit-nome" value="${molho.name}">
+    <input type="text" class="campo-input edit-descricao" value="${molho.description || ""}" placeholder="Descrição">
+    <input type="number" class="campo-input edit-preco-p" value="${molho.preco_p}" step="0.01" min="0" placeholder="Preço P">
+    <input type="number" class="campo-input edit-preco-g" value="${molho.preco_g}" step="0.01" min="0" placeholder="Preço G">
+    <div class="card-produto-acoes">
+      <button class="btn-editar btn-salvar">Salvar</button>
+      <button class="btn-cancelar btn-cancelar-edicao">Cancelar</button>
+    </div>
+  `;
+
+  card.querySelector(".btn-salvar").addEventListener("click", async () => {
+    const novoNome = card.querySelector(".edit-nome").value.trim();
+    const novaDescricao = card.querySelector(".edit-descricao").value.trim();
+    const novoPrecoP = parseFloat(card.querySelector(".edit-preco-p").value);
+    const novoPrecoG = parseFloat(card.querySelector(".edit-preco-g").value);
+
+    if (!novoNome || isNaN(novoPrecoP) || isNaN(novoPrecoG)) {
+      alert("Preencha nome e os dois preços corretamente.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("molhos")
+      .update({ name: novoNome, description: novaDescricao || null, preco_p: novoPrecoP, preco_g: novoPrecoG })
+      .eq("id", molho.id);
+
+    if (error) {
+      alert("Erro ao salvar: " + error.message);
+      return;
+    }
+
+    carregarMolhos();
+  });
+
+  card.querySelector(".btn-cancelar-edicao").addEventListener("click", () => {
+    renderizarMolhoVisualizacao(card, molho);
+  });
+}
+
+async function alternarAtivoMolho(molho) {
+  const { error } = await supabaseClient
+    .from("molhos")
+    .update({ active: !molho.active })
+    .eq("id", molho.id);
+
+  if (error) {
+    alert("Erro ao atualizar: " + error.message);
+    return;
+  }
+
+  carregarMolhos();
+}
+
+async function excluirMolho(id, nome) {
+  const confirmar = confirm(`Excluir o molho "${nome}"? Isso só funciona se ele nunca tiver sido pedido.`);
+  if (!confirmar) return;
+
+  const { error } = await supabaseClient.from("molhos").delete().eq("id", id);
+
+  if (error) {
+    alert("Não foi possível excluir. Provavelmente esse molho já apareceu em algum pedido. Detalhe: " + error.message);
+    return;
+  }
+
+  carregarMolhos();
+}
+
+
+// ===== ADICIONAIS =====
+
+formAdicional.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nome = inputNomeAdicional.value.trim();
+  const preco = parseFloat(inputPrecoAdicional.value);
+
+  if (!nome || isNaN(preco)) {
+    alert("Preencha nome e preço corretamente.");
+    return;
+  }
+
+  const { data: existentes } = await supabaseClient
+    .from("adicionais")
+    .select("display_order")
+    .order("display_order", { ascending: false })
+    .limit(1);
+
+  const proximaOrdem = existentes && existentes.length > 0 ? existentes[0].display_order + 1 : 0;
+
+  const { error } = await supabaseClient
+    .from("adicionais")
+    .insert({ name: nome, price: preco, active: true, display_order: proximaOrdem });
+
+  if (error) {
+    alert("Erro ao adicionar adicional: " + error.message);
+    return;
+  }
+
+  formAdicional.reset();
+  carregarAdicionaisAdmin();
+});
+
+async function carregarAdicionaisAdmin() {
+  const { data: adicionaisLista, error } = await supabaseClient
+    .from("adicionais")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    listaAdicionaisAdmin.innerHTML = `<p class="erro-cliente">Erro ao carregar adicionais: ${error.message}</p>`;
+    return;
+  }
+
+  if (adicionaisLista.length === 0) {
+    listaAdicionaisAdmin.innerHTML = `<p class="carregando">Nenhum adicional ainda.</p>`;
+    return;
+  }
+
+  listaAdicionaisAdmin.innerHTML = "";
+  adicionaisLista.forEach((adicional) => {
+    listaAdicionaisAdmin.appendChild(criarCardAdicional(adicional));
+  });
+}
+
+function criarCardAdicional(adicional) {
+  const card = document.createElement("div");
+  card.className = "card-produto";
+  renderizarAdicionalVisualizacao(card, adicional);
+  return card;
+}
+
+function renderizarAdicionalVisualizacao(card, adicional) {
+  card.innerHTML = `
+    <div class="card-produto-topo">
+      <span class="card-produto-nome">${adicional.name}</span>
+      <button class="${adicional.active ? 'badge-ativo' : 'badge-inativo'}">
+        ${adicional.active ? 'Ativo' : 'Inativo'}
+      </button>
+    </div>
+    <div class="card-produto-preco">R$ ${Number(adicional.price).toFixed(2)}</div>
+    <div class="card-produto-acoes">
+      <button class="btn-editar">Editar</button>
+      <button class="btn-cancelar">Excluir</button>
+    </div>
+  `;
+
+  card.querySelector(".badge-ativo, .badge-inativo").addEventListener("click", () =>
+    alternarAtivoAdicional(adicional)
+  );
+  card.querySelector(".btn-editar").addEventListener("click", () =>
+    renderizarAdicionalEdicao(card, adicional)
+  );
+  card.querySelector(".btn-cancelar").addEventListener("click", () =>
+    excluirAdicional(adicional.id, adicional.name)
+  );
+}
+
+function renderizarAdicionalEdicao(card, adicional) {
+  card.innerHTML = `
+    <input type="text" class="campo-input edit-nome" value="${adicional.name}">
+    <input type="number" class="campo-input edit-preco" value="${adicional.price}" step="0.01" min="0">
+    <div class="card-produto-acoes">
+      <button class="btn-editar btn-salvar">Salvar</button>
+      <button class="btn-cancelar btn-cancelar-edicao">Cancelar</button>
+    </div>
+  `;
+
+  card.querySelector(".btn-salvar").addEventListener("click", async () => {
+    const novoNome = card.querySelector(".edit-nome").value.trim();
+    const novoPreco = parseFloat(card.querySelector(".edit-preco").value);
+
+    if (!novoNome || isNaN(novoPreco)) {
+      alert("Preencha nome e preço corretamente.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("adicionais")
+      .update({ name: novoNome, price: novoPreco })
+      .eq("id", adicional.id);
+
+    if (error) {
+      alert("Erro ao salvar: " + error.message);
+      return;
+    }
+
+    carregarAdicionaisAdmin();
+  });
+
+  card.querySelector(".btn-cancelar-edicao").addEventListener("click", () => {
+    renderizarAdicionalVisualizacao(card, adicional);
+  });
+}
+
+async function alternarAtivoAdicional(adicional) {
+  const { error } = await supabaseClient
+    .from("adicionais")
+    .update({ active: !adicional.active })
+    .eq("id", adicional.id);
+
+  if (error) {
+    alert("Erro ao atualizar: " + error.message);
+    return;
+  }
+
+  carregarAdicionaisAdmin();
+}
+
+async function excluirAdicional(id, nome) {
+  const confirmar = confirm(`Excluir o adicional "${nome}"? Isso só funciona se ele nunca tiver sido pedido.`);
+  if (!confirmar) return;
+
+  const { error } = await supabaseClient.from("adicionais").delete().eq("id", id);
+
+  if (error) {
+    alert("Não foi possível excluir. Provavelmente esse adicional já apareceu em algum pedido. Detalhe: " + error.message);
+    return;
+  }
+
+  carregarAdicionaisAdmin();
+}

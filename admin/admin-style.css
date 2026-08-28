@@ -1,0 +1,595 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+:root {
+  --cor-fundo: #F5F5F5;
+  --cor-texto: #222831;
+  --cor-texto-suave: #767b85;
+  --cor-primaria: #F2811D;
+  --cor-primaria-clara: #FDBA4D;
+  --cor-primaria-escura: #D96D0F;
+  --cor-secundaria: #27ae60;
+  --cor-destaque: #2980b9;
+  --cor-card: #FFFFFF;
+  --cor-erro: #c0392b;
+  --cor-borda: #ECECEC;
+  --cor-inativo: #9AA0A8;
+  --raio: 16px;
+  --raio-pequeno: 10px;
+  --raio-pilula: 999px;
+  --sombra: 0 2px 10px rgba(0, 0, 0, 0.06);
+  --sombra-forte: 0 6px 20px rgba(0, 0, 0, 0.10);
+  --gradiente-logo: linear-gradient(135deg, #FDBA4D 0%, #F2811D 100%);
+}
+
+body {
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  line-height: 1.5;
+  padding-bottom: 40px;
+}
+
+/* ===== LOGO / IDENTIDADE ===== */
+
+.logo-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sombra-forte);
+  margin: 0 auto;
+  overflow: hidden;
+  border: 2px solid var(--cor-borda);
+}
+
+.logo-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.logo-badge--pequeno {
+  width: 46px;
+  height: 46px;
+}
+
+/* ===== LOGIN ===== */
+
+.tela-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-caixa {
+  background: var(--cor-card);
+  border-radius: var(--raio);
+  padding: 32px 26px;
+  width: 100%;
+  max-width: 370px;
+  box-shadow: var(--sombra-forte);
+  text-align: center;
+}
+
+.login-caixa h1 {
+  text-align: center;
+  margin-top: 18px;
+  margin-bottom: 22px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
+.campo-label {
+  display: block;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+
+.campo-input {
+  width: 100%;
+  padding: 13px 15px;
+  border: 2px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  font-size: 1rem;
+  background: #fff;
+  color: var(--cor-texto);
+  margin-bottom: 4px;
+  min-height: 50px;
+  transition: border-color 0.15s;
+}
+
+.campo-input:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+}
+
+.erro-cliente {
+  color: var(--cor-erro);
+  background: rgba(192, 57, 43, 0.08);
+  border-radius: var(--raio-pequeno);
+  padding: 10px 12px;
+  font-size: 0.87rem;
+  margin: 12px 0;
+  text-align: left;
+}
+
+.erro-cliente.oculto {
+  display: none;
+}
+
+/* ===== BOTÕES ===== */
+
+.btn-primario {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px;
+  background: var(--gradiente-logo);
+  color: #fff;
+  border: none;
+  border-radius: var(--raio-pequeno);
+  font-size: 1.02rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 14px;
+  box-shadow: 0 3px 10px rgba(242, 129, 29, 0.30);
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+
+.btn-primario:hover {
+  box-shadow: 0 4px 14px rgba(242, 129, 29, 0.40);
+}
+
+.btn-primario:active {
+  transform: scale(0.98);
+}
+
+.btn-primario:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ===== ESTRUTURA GERAL DO PAINEL ===== */
+
+.tela-painel {
+  padding: 18px 16px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.topo-painel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.topo-painel-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topo-painel h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
+.topo-painel-acoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-sair {
+  background: #fff;
+  border: 2px solid var(--cor-borda);
+  color: var(--cor-texto);
+  border-radius: var(--raio-pilula);
+  padding: 10px 16px;
+  min-height: 42px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-nav {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--cor-primaria-escura);
+  text-decoration: none;
+  background: #fff;
+  border: 2px solid var(--cor-borda);
+  border-radius: var(--raio-pilula);
+  padding: 10px 16px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-voltar-secao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--cor-primaria-escura);
+  font-weight: 700;
+  font-size: 0.98rem;
+  padding: 10px 4px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.carregando {
+  text-align: center;
+  color: var(--cor-texto-suave);
+  margin-top: 40px;
+}
+
+/* ===== PEDIDOS ===== */
+
+.lista-pedidos {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card-pedido {
+  background: var(--cor-card);
+  border-radius: var(--raio);
+  padding: 18px;
+  box-shadow: var(--sombra);
+}
+
+.card-pedido-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.card-pedido-info {
+  font-size: 0.94rem;
+  color: var(--cor-texto-suave);
+  margin-bottom: 4px;
+}
+
+.status-badge {
+  font-size: 0.76rem;
+  padding: 6px 14px;
+  border-radius: var(--raio-pilula);
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.status-AGUARDANDO_PAGAMENTO { background: var(--cor-primaria); }
+.status-PAGO { background: var(--cor-destaque); }
+.status-EM_PREPARO { background: #8449A6; }
+.status-PRONTO { background: var(--cor-secundaria); }
+.status-ENTREGUE { background: #8A8072; }
+.status-CANCELADO { background: var(--cor-erro); }
+
+.card-pedido-acoes {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-avancar {
+  width: auto;
+  flex: 1;
+  min-width: 160px;
+  padding: 12px 16px;
+  margin-top: 0;
+  font-size: 0.94rem;
+  box-shadow: none;
+}
+
+.btn-cancelar {
+  background: #fff;
+  color: var(--cor-erro);
+  border: 2px solid var(--cor-erro);
+  border-radius: var(--raio-pequeno);
+  padding: 12px 16px;
+  min-height: 46px;
+  font-size: 0.94rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ===== HUB (TELA INICIAL DO CARDÁPIO) ===== */
+
+.grade-hub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.cartao-hub {
+  background: var(--cor-card);
+  border-radius: var(--raio);
+  padding: 24px 12px;
+  box-shadow: var(--sombra);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--cor-texto);
+  cursor: pointer;
+  border: none;
+  transition: box-shadow 0.15s, transform 0.1s;
+}
+
+.cartao-hub:hover {
+  box-shadow: var(--sombra-forte);
+}
+
+.cartao-hub:active {
+  transform: scale(0.96);
+}
+
+.cartao-hub-icone {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+}
+
+.cartao-hub-nome {
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.cartao-hub--categorias .cartao-hub-icone { background: #FDEBD0; }
+.cartao-hub--produtos .cartao-hub-icone { background: #FDE4D0; }
+.cartao-hub--massas .cartao-hub-icone { background: #FCF0C7; }
+.cartao-hub--molhos .cartao-hub-icone { background: #E1F0DA; }
+.cartao-hub--adicionais .cartao-hub-icone { background: #FCE8B8; }
+
+/* ===== SEÇÕES DE CADASTRO (categorias, produtos, massas, molhos, adicionais) ===== */
+
+.secao-categorias,
+.secao-produtos {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.secao-categorias h2,
+.secao-produtos h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--cor-texto);
+}
+
+.form-inline {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.form-inline .campo-input {
+  flex: 1;
+  min-width: 160px;
+  margin-bottom: 0;
+}
+
+.form-inline .btn-avancar {
+  white-space: nowrap;
+  flex: none;
+}
+
+.lista-categorias {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.linha-categoria {
+  background: var(--cor-card);
+  border-radius: var(--raio-pequeno);
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--sombra);
+  font-weight: 600;
+}
+
+.form-produto {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: var(--cor-card);
+  padding: 18px;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+.form-produto .campo-input {
+  margin-bottom: 0;
+}
+
+.lista-produtos {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.grupo-categoria-produtos h3 {
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  margin-bottom: 10px;
+  margin-top: 6px;
+}
+
+.card-produto {
+  background: var(--cor-card);
+  border-radius: var(--raio-pequeno);
+  padding: 16px 18px;
+  box-shadow: var(--sombra);
+  margin-bottom: 10px;
+}
+
+.card-produto-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-produto-nome {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.card-produto-desc {
+  font-size: 0.88rem;
+  color: var(--cor-texto-suave);
+  margin: 6px 0;
+}
+
+.card-produto-preco {
+  font-weight: 700;
+  color: var(--cor-primaria-escura);
+  font-size: 0.98rem;
+  margin-top: 4px;
+}
+
+.badge-ativo {
+  font-size: 0.74rem;
+  padding: 6px 12px;
+  border-radius: var(--raio-pilula);
+  font-weight: 700;
+  color: #fff;
+  background: var(--cor-secundaria);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.badge-inativo {
+  font-size: 0.74rem;
+  padding: 6px 12px;
+  border-radius: var(--raio-pilula);
+  font-weight: 700;
+  color: #fff;
+  background: var(--cor-inativo);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.card-produto-acoes {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-editar {
+  flex: 1;
+  background: var(--cor-fundo);
+  border: 2px solid var(--cor-borda);
+  color: var(--cor-texto);
+  border-radius: var(--raio-pilula);
+  padding: 11px 14px;
+  min-height: 44px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.card-produto-acoes .btn-cancelar {
+  flex: 1;
+  min-height: 44px;
+  border-radius: var(--raio-pilula);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.card-pedido-itens {
+  margin: 10px 0;
+  padding: 8px 10px;
+  background: #f7f7f7;
+  border-radius: 8px;
+}
+
+.card-pedido-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.card-pedido-item:last-child {
+  border-bottom: none;
+}
+
+.card-pedido-item-topo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card-pedido-item-detalhe {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.card-pedido-item-vazio {
+  font-size: 13px;
+  color: #999;
+}
+
+.card-pedido-total {
+  font-weight: bold;
+}
+
+.btn-excluir {
+  background: none;
+  border: 1px solid var(--cor-erro, #c0392b);
+  color: var(--cor-erro, #c0392b);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-excluir:hover {
+  background: var(--cor-erro, #c0392b);
+  color: #fff;
+}

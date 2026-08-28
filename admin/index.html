@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - Pedidos</title>
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="tela-painel">
+
+    <header class="topo-painel">
+    <h1>🚚 Pedidos</h1>
+    <div class="topo-painel-acoes">
+      <a href="cardapio.html" class="link-nav">Cardápio</a>
+      <button id="btn-sair" class="btn-sair">Sair</button>
+    </div>
+  </header>
+
+  <main id="lista-pedidos" class="lista-pedidos">
+    <p class="carregando">Carregando pedidos...</p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="painel.js"></script>
+
+</body>
+</html>
