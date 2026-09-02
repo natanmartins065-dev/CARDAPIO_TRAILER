@@ -1,6 +1,6 @@
 {
-  "name": "Macarrão na Chapa",
-  "short_name": "Macarrão",
+  "name": "Cardapio Food Truck",
+  "short_name": "CardapioFD",
   "description": "Peça seu macarrão na chapa direto pelo celular",
   "start_url": "/index.html",
   "scope": "/",
