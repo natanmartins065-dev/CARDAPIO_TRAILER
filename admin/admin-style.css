@@ -612,3 +612,7 @@ body {
 .link-admin:hover {
   color: #e8923b;
 }
+
+html, body {
+  overscroll-behavior-y: none;
+}
