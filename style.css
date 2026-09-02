@@ -538,9 +538,9 @@ body {
   position: absolute;
   width: 84px;
   height: auto;
-  left: calc(50% + 66px);
-  top: calc(50% + 36px);
-  transform: rotate(6deg);
+  left: calc(50% + 84px);
+  top: calc(50% + 44px);
+  transform: rotate(-4deg);
 }
 
 .seta-linha,
