@@ -653,3 +653,11 @@ function resetarAppAposPedido() {
   irParaPasso(1);
   renderizarMassas();
 }
+
+// Impede o botão "voltar" do celular de navegar pra outras páginas
+// (ex: sair do cardápio e cair sem querer numa página visitada antes, como o admin)
+history.pushState(null, "", location.href);
+
+window.addEventListener("popstate", () => {
+  history.pushState(null, "", location.href);
+});
