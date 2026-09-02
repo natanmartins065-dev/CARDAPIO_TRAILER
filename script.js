@@ -120,6 +120,7 @@ function renderizarMassas() {
     `;
     card.addEventListener("click", () => {
       massaSelecionada = massa;
+      empilharTela("passo2");
       irParaPasso(2);
       renderizarMolhos();
     });
@@ -153,6 +154,7 @@ function renderizarOutrosProdutos() {
         preco: Number(produto.price)
       });
       renderizarCarrinho();
+      empilharTela("passo3");
       irParaPasso(3);
       renderizarBebidas();
     });
@@ -313,6 +315,7 @@ btnAddCarrinho.addEventListener("click", () => {
   });
 
   renderizarCarrinho();
+  empilharTela("passo3");
   irParaPasso(3);
   renderizarBebidas();
 });
@@ -427,10 +430,12 @@ function atualizarBadgesBebidas() {
 }
 
 btnPularBebida.addEventListener("click", () => {
+  empilharTela("resumo");
   mostrarSoResumo();
 });
 
 btnVoltarMolho.addEventListener("click", () => {
+  pilhaTelas = ["passo1"];
   irParaPasso(1);
 });
 
@@ -446,16 +451,19 @@ btnVoltarBebida.addEventListener("click", () => {
     // Veio de massa + molho: volta pro molho, mantendo a seleção
     carrinho.pop();
     renderizarCarrinho();
+    pilhaTelas = ["passo1", "passo2"];
     irParaPasso(2);
     renderizarMolhos(true);
   } else if (ultimoItem && ultimoItem.tipo === "prato") {
     // Veio de um prato à parte (ex: Salada de Macarrão): volta pra tela de massa
     carrinho.pop();
     renderizarCarrinho();
+    pilhaTelas = ["passo1"];
     irParaPasso(1);
     renderizarMassas();
   } else {
     renderizarCarrinho();
+    pilhaTelas = ["passo1"];
     irParaPasso(1);
     renderizarMassas();
   }
@@ -467,6 +475,7 @@ btnVoltarResumo.addEventListener("click", () => {
     carrinho.pop();
   }
   renderizarCarrinho();
+  pilhaTelas.pop(); // tira o "resumo" da pilha
   irParaPasso(3);
   renderizarBebidas();
 });
@@ -485,6 +494,7 @@ function voltarParaPasso1() {
   massaSelecionada = null;
   molhoSelecionado = null;
   tamanhoSelecionado = null;
+  pilhaTelas = ["passo1"];
   irParaPasso(1);
   renderizarMassas();
 }
@@ -556,6 +566,7 @@ function renderizarCarrinho() {
 // FINALIZAR PEDIDO
 btnFinalizar.addEventListener("click", () => {
   if (carrinho.length === 0) return;
+  empilharTela("dadosCliente");
   document.querySelectorAll(".passo-quiz[data-passo]").forEach((s) => s.classList.add("escondido"));
   document.getElementById("progresso-quiz").classList.add("escondido");
   resumoPedido.classList.add("escondido");
@@ -650,14 +661,72 @@ function resetarAppAposPedido() {
   passoDadosCliente.classList.add("escondido");
   resumoPedido.classList.add("escondido");
 
+  pilhaTelas = ["passo1"];
   irParaPasso(1);
   renderizarMassas();
 }
 
-// Impede o botão "voltar" do celular de navegar pra outras páginas
-// (ex: sair do cardápio e cair sem querer numa página visitada antes, como o admin)
-history.pushState(null, "", location.href);
+// ===== CONTROLE DO BOTÃO FÍSICO DE VOLTAR =====
+// Duas partes:
+// 1) Uma "almofada" grande no histórico do navegador, só pra nunca deixar
+//    o botão físico chegar perto de uma página anterior de verdade
+//    (tipo o admin) — mesmo com vários toques rápidos e seguidos.
+// 2) Uma pilha nossa (pilhaTelas), que guarda a sequência de telas do
+//    cliente dentro do quiz, pra decidir pra qual tela voltar de verdade.
+
+const ALMOFADA_HISTORICO = 40;
+let pilhaTelas = ["passo1"];
+
+function empilharTela(tela) {
+  pilhaTelas.push(tela);
+  history.pushState(null, "", location.href);
+}
+
+for (let i = 0; i < ALMOFADA_HISTORICO; i++) {
+  history.pushState(null, "", location.href);
+}
 
 window.addEventListener("popstate", () => {
+  // Repõe a almofada, pra ela nunca esvaziar de verdade
   history.pushState(null, "", location.href);
+
+  if (pilhaTelas.length > 1) {
+    const telaRemovida = pilhaTelas.pop();
+    mostrarTelaAnterior(pilhaTelas[pilhaTelas.length - 1], telaRemovida);
+  }
+  // Se já está no passo 1 (início do quiz), fica travado ali — não sai do cardápio.
 });
+
+function mostrarTelaAnterior(tela, telaRemovida) {
+  passoDadosCliente.classList.add("escondido");
+
+  if (tela === "passo1") {
+    massaSelecionada = null;
+    molhoSelecionado = null;
+    tamanhoSelecionado = null;
+    irParaPasso(1);
+    renderizarMassas();
+  } else if (tela === "passo2") {
+    while (carrinho.length > 0 && carrinho[carrinho.length - 1].tipo === "produto") {
+      carrinho.pop();
+    }
+    const ultimoItem = carrinho[carrinho.length - 1];
+    if (ultimoItem && ultimoItem.tipo === "macarrao") {
+      carrinho.pop();
+    }
+    renderizarCarrinho();
+    irParaPasso(2);
+    renderizarMolhos(true);
+  } else if (tela === "passo3") {
+    if (telaRemovida === "resumo") {
+      while (carrinho.length > 0 && carrinho[carrinho.length - 1].tipo === "produto") {
+        carrinho.pop();
+      }
+      renderizarCarrinho();
+    }
+    irParaPasso(3);
+    renderizarBebidas();
+  } else if (tela === "resumo") {
+    mostrarSoResumo();
+  }
+}
