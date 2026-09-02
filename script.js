@@ -120,7 +120,7 @@ function renderizarMassas() {
     `;
     card.addEventListener("click", () => {
       massaSelecionada = massa;
-      empilharTela("passo2");
+      irParaTela("passo2");
       irParaPasso(2);
       renderizarMolhos();
     });
@@ -154,7 +154,7 @@ function renderizarOutrosProdutos() {
         preco: Number(produto.price)
       });
       renderizarCarrinho();
-      empilharTela("passo3");
+      irParaTela("passo3");
       irParaPasso(3);
       renderizarBebidas();
     });
@@ -315,7 +315,7 @@ btnAddCarrinho.addEventListener("click", () => {
   });
 
   renderizarCarrinho();
-  empilharTela("passo3");
+  irParaTela("passo3");
   irParaPasso(3);
   renderizarBebidas();
 });
@@ -430,54 +430,20 @@ function atualizarBadgesBebidas() {
 }
 
 btnPularBebida.addEventListener("click", () => {
-  empilharTela("resumo");
+  irParaTela("resumo");
   mostrarSoResumo();
 });
 
 btnVoltarMolho.addEventListener("click", () => {
-  pilhaTelas = ["passo1"];
-  irParaPasso(1);
+  history.back();
 });
 
 btnVoltarBebida.addEventListener("click", () => {
-  // Remove qualquer bebida já escolhida nessa rodada
-  while (carrinho.length > 0 && carrinho[carrinho.length - 1].tipo === "produto") {
-    carrinho.pop();
-  }
-
-  const ultimoItem = carrinho[carrinho.length - 1];
-
-  if (ultimoItem && ultimoItem.tipo === "macarrao") {
-    // Veio de massa + molho: volta pro molho, mantendo a seleção
-    carrinho.pop();
-    renderizarCarrinho();
-    pilhaTelas = ["passo1", "passo2"];
-    irParaPasso(2);
-    renderizarMolhos(true);
-  } else if (ultimoItem && ultimoItem.tipo === "prato") {
-    // Veio de um prato à parte (ex: Salada de Macarrão): volta pra tela de massa
-    carrinho.pop();
-    renderizarCarrinho();
-    pilhaTelas = ["passo1"];
-    irParaPasso(1);
-    renderizarMassas();
-  } else {
-    renderizarCarrinho();
-    pilhaTelas = ["passo1"];
-    irParaPasso(1);
-    renderizarMassas();
-  }
+  history.back();
 });
 
 btnVoltarResumo.addEventListener("click", () => {
-  // Remove todas as bebidas adicionadas nessa rodada (podem ser várias agora)
-  while (carrinho.length > 0 && carrinho[carrinho.length - 1].tipo === "produto") {
-    carrinho.pop();
-  }
-  renderizarCarrinho();
-  pilhaTelas.pop(); // tira o "resumo" da pilha
-  irParaPasso(3);
-  renderizarBebidas();
+  history.back();
 });
 
 function mostrarSoResumo() {
@@ -494,7 +460,7 @@ function voltarParaPasso1() {
   massaSelecionada = null;
   molhoSelecionado = null;
   tamanhoSelecionado = null;
-  pilhaTelas = ["passo1"];
+  irParaTela("passo1");
   irParaPasso(1);
   renderizarMassas();
 }
@@ -566,7 +532,7 @@ function renderizarCarrinho() {
 // FINALIZAR PEDIDO
 btnFinalizar.addEventListener("click", () => {
   if (carrinho.length === 0) return;
-  empilharTela("dadosCliente");
+  irParaTela("dadosCliente");
   document.querySelectorAll(".passo-quiz[data-passo]").forEach((s) => s.classList.add("escondido"));
   document.getElementById("progresso-quiz").classList.add("escondido");
   resumoPedido.classList.add("escondido");
@@ -661,55 +627,72 @@ function resetarAppAposPedido() {
   passoDadosCliente.classList.add("escondido");
   resumoPedido.classList.add("escondido");
 
-  pilhaTelas = ["passo1"];
+  irParaTela("passo1");
   irParaPasso(1);
   renderizarMassas();
 }
 
 // ===== CONTROLE DO BOTÃO FÍSICO DE VOLTAR =====
-// Duas partes:
-// 1) Uma "almofada" grande no histórico do navegador, só pra nunca deixar
-//    o botão físico chegar perto de uma página anterior de verdade
-//    (tipo o admin) — mesmo com vários toques rápidos e seguidos.
-// 2) Uma pilha nossa (pilhaTelas), que guarda a sequência de telas do
-//    cliente dentro do quiz, pra decidir pra qual tela voltar de verdade.
+// Cada avanço de tela empurra UMA posição real no histórico do navegador
+// (via irParaTela). Os botões "← Voltar" de dentro do app simplesmente
+// simulam um "voltar" de verdade (history.back()) — assim o botão do app
+// e o botão físico do celular sempre andam juntos, nunca dessincronizam.
+//
+// No fundo do histórico (tela inicial, "passo1"), mantemos uma reserva de
+// posições idênticas, pra nunca deixar o botão físico escapar do cardápio
+// e cair numa página visitada antes (como o admin), mesmo com vários
+// toques rápidos seguidos.
 
-const ALMOFADA_HISTORICO = 40;
-let pilhaTelas = ["passo1"];
+let telaAtual = "passo1";
 
-function empilharTela(tela) {
-  pilhaTelas.push(tela);
-  history.pushState(null, "", location.href);
+history.replaceState({ tela: "passo1" }, "", location.href);
+for (let i = 0; i < 5; i++) {
+  history.pushState({ tela: "passo1" }, "", location.href);
 }
 
-for (let i = 0; i < ALMOFADA_HISTORICO; i++) {
-  history.pushState(null, "", location.href);
+function irParaTela(tela) {
+  telaAtual = tela;
+  history.pushState({ tela }, "", location.href);
 }
 
-window.addEventListener("popstate", () => {
-  // Repõe a almofada, pra ela nunca esvaziar de verdade
-  history.pushState(null, "", location.href);
+window.addEventListener("popstate", (event) => {
+  const novaTela = (event.state && event.state.tela) || "passo1";
+  restaurarTela(novaTela);
 
-  if (pilhaTelas.length > 1) {
-    const telaRemovida = pilhaTelas.pop();
-    mostrarTelaAnterior(pilhaTelas[pilhaTelas.length - 1], telaRemovida);
+  // Se voltou até o "chão" (tela inicial), repõe a reserva pra continuar travado ali
+  if (novaTela === "passo1") {
+    history.pushState({ tela: "passo1" }, "", location.href);
   }
-  // Se já está no passo 1 (início do quiz), fica travado ali — não sai do cardápio.
 });
 
-function mostrarTelaAnterior(tela, telaRemovida) {
+function restaurarTela(tela) {
+  const telaAnterior = telaAtual;
+  telaAtual = tela;
+
   passoDadosCliente.classList.add("escondido");
 
-  if (tela === "passo1") {
-    massaSelecionada = null;
-    molhoSelecionado = null;
-    tamanhoSelecionado = null;
-    irParaPasso(1);
-    renderizarMassas();
-  } else if (tela === "passo2") {
+  // Se estávamos numa rodada de bebida (ou no resumo pós "pular bebida"),
+  // desfaz as bebidas escolhidas nessa rodada antes de trocar de tela
+  if (telaAnterior === "passo3" || telaAnterior === "resumo") {
     while (carrinho.length > 0 && carrinho[carrinho.length - 1].tipo === "produto") {
       carrinho.pop();
     }
+  }
+
+  if (tela === "passo1") {
+    // Se o item mais recente foi um prato à parte (ex: Salada), desfaz também
+    const ultimoItem = carrinho[carrinho.length - 1];
+    if (ultimoItem && ultimoItem.tipo === "prato") {
+      carrinho.pop();
+    }
+    massaSelecionada = null;
+    molhoSelecionado = null;
+    tamanhoSelecionado = null;
+    renderizarCarrinho();
+    irParaPasso(1);
+    renderizarMassas();
+  } else if (tela === "passo2") {
+    // Desfaz o macarrão montado nessa rodada, pra poder escolher molho de novo
     const ultimoItem = carrinho[carrinho.length - 1];
     if (ultimoItem && ultimoItem.tipo === "macarrao") {
       carrinho.pop();
@@ -718,12 +701,7 @@ function mostrarTelaAnterior(tela, telaRemovida) {
     irParaPasso(2);
     renderizarMolhos(true);
   } else if (tela === "passo3") {
-    if (telaRemovida === "resumo") {
-      while (carrinho.length > 0 && carrinho[carrinho.length - 1].tipo === "produto") {
-        carrinho.pop();
-      }
-      renderizarCarrinho();
-    }
+    renderizarCarrinho();
     irParaPasso(3);
     renderizarBebidas();
   } else if (tela === "resumo") {
