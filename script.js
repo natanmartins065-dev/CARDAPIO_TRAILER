@@ -6,8 +6,12 @@ const telaAbertura = document.getElementById("tela-abertura");
 const btnAbrirCardapio = document.getElementById("btn-abrir-cardapio");
 const appCardapio = document.getElementById("app-cardapio");
 
-if (localStorage.getItem(CHAVE_JA_ABRIU)) {
-  // Já visitou antes: pula direto pro cardápio, sem animação
+// No app instalado (standalone), sempre mostra a tela de abertura.
+// Só no navegador normal é que pula depois da 1ª visita.
+const rodandoComoAppInstalado = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+
+if (!rodandoComoAppInstalado && localStorage.getItem(CHAVE_JA_ABRIU)) {
+  // Já visitou antes pelo navegador: pula direto pro cardápio, sem animação
   telaAbertura.remove();
   appCardapio.classList.remove("escondido");
   appCardapio.classList.add("mostrando");

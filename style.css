@@ -592,3 +592,15 @@ body {
   font-weight: 700;
   color: var(--cor-primaria-escura);
 }
+
+.link-admin {
+  display: block;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #999;
+  text-decoration: none;
+}
+
+.link-admin:hover {
+  color: #e8923b;
+}

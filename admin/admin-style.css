@@ -600,3 +600,15 @@ body {
   color: #e8923b;
   margin-bottom: 6px;
 }
+
+.link-admin {
+  display: block;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #999;
+  text-decoration: none;
+}
+
+.link-admin:hover {
+  color: #e8923b;
+}
