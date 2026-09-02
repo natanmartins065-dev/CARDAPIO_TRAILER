@@ -3,9 +3,7 @@ const btnSair = document.getElementById("btn-sair");
 
 const STATUS_SEGUINTE = {
   AGUARDANDO_PAGAMENTO: "PAGO",
-  PAGO: "EM_PREPARO",
-  EM_PREPARO: "PRONTO",
-  PRONTO: "ENTREGUE"
+  PAGO: "ENTREGUE"
 };
 
 const STATUS_LABEL = {
@@ -148,6 +146,7 @@ function criarCardPedido(pedido) {
   const proximoStatus = STATUS_SEGUINTE[pedido.status];
 
   card.innerHTML = `
+    <div class="card-pedido-numero">Pedido #${pedido.daily_number ?? "—"}</div>
     <div class="card-pedido-topo">
       <strong>${pedido.customer_name}</strong>
       <span class="status-badge status-${pedido.status}">${STATUS_LABEL[pedido.status]}</span>

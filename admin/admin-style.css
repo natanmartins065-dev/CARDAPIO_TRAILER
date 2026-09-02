@@ -593,3 +593,10 @@ body {
   background: var(--cor-erro, #c0392b);
   color: #fff;
 }
+
+.card-pedido-numero {
+  font-size: 20px;
+  font-weight: bold;
+  color: #e8923b;
+  margin-bottom: 6px;
+}
