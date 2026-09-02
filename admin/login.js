@@ -43,3 +43,19 @@ function mostrarErro(mensagem) {
   erroLogin.textContent = mensagem;
   erroLogin.classList.remove("oculto");
 }
+
+
+// ATUALIZAÇÃO AUTOMÁTICA DO APP
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    window.location.reload();
+  });
+
+  navigator.serviceWorker.ready.then((registro) => {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        registro.update();
+      }
+    });
+  });
+}

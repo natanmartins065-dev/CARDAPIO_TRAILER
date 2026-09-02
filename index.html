@@ -132,7 +132,19 @@
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js");
+        navigator.serviceWorker.register("/sw.js").then((registro) => {
+          // Sempre que o app volta a ficar em primeiro plano, verifica se tem versão nova
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+              registro.update();
+            }
+          });
+        });
+      });
+
+      // Quando uma versão nova assume o controle, recarrega a página automaticamente
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        window.location.reload();
       });
     }
   </script>
