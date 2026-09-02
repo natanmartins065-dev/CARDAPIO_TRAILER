@@ -1,4 +1,4 @@
-const CACHE_NAME = "painel-admin-trailer-v1";
+const CACHE_NAME = "painel-admin-trailer-v2";
 
 const ARQUIVOS_PARA_CACHE = [
   "/admin/login.html",
