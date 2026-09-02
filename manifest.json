@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Cardapio Food Truck",
-  "short_name": "CardapioFD",
+  "name": "Cardápio TremBão",
+  "short_name": "TremBão",
   "description": "Peça seu macarrão na chapa direto pelo celular",
   "start_url": "/index.html",
   "scope": "/",
