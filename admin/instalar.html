@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instalar App - Painel do Trailer</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="../assets/icons/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#e8923b">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    body {
+      min-height: 100vh;
+      background: #fff8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .logo-instalar { width: 120px; height: 120px; border-radius: 50%; margin-bottom: 20px; }
+    h1 { font-size: 20px; margin-bottom: 8px; color: #222; }
+    p.subtitulo { font-size: 14px; color: #777; margin-bottom: 28px; }
+    .btn-instalar {
+      background: #e8923b; color: #fff; border: none; border-radius: 999px;
+      padding: 14px 28px; font-size: 16px; font-weight: bold; cursor: pointer;
+    }
+    .escondido { display: none !important; }
+    .tutorial-instalar {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; z-index: 999; padding: 20px;
+    }
+    .tutorial-caixa { background: #fff; border-radius: 16px; padding: 24px 20px; max-width: 320px; position: relative; text-align: left; }
+    .tutorial-caixa h3 { margin-bottom: 14px; }
+    .tutorial-caixa p { font-size: 14px; margin-bottom: 10px; color: #444; }
+    .tutorial-fechar { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 18px; cursor: pointer; color: #888; }
+    .ja-instalado { font-size: 14px; color: #777; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <img src="../assets/logo.png" alt="Logo do trailer" class="logo-instalar">
+  <h1>Painel do Trailer</h1>
+  <p class="subtitulo">Instale o app pra gerenciar pedidos e cardápio</p>
+
+  <button type="button" id="btn-instalar-app" class="btn-instalar escondido">📲 Instalar aplicativo</button>
+  <p id="mensagem-instalado" class="ja-instalado escondido">✅ Já instalado nesse aparelho!</p>
+
+  <div class="tutorial-instalar escondido" id="tutorial-instalar-ios">
+    <div class="tutorial-caixa">
+      <button type="button" class="tutorial-fechar" id="btn-fechar-tutorial">✕</button>
+      <h3>📲 Instalar no iPhone</h3>
+      <p>1. Toque no botão <strong>Compartilhar</strong> (o quadrado com a seta ↑) na barra do Safari.</p>
+      <p>2. Role para baixo e toque em <strong>"Adicionar à Tela de Início"</strong>.</p>
+      <p>3. Toque em <strong>"Adicionar"</strong> no canto superior direito.</p>
+    </div>
+  </div>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/admin/sw.js");
+    }
+
+    let promptInstalacao = null;
+    const btnInstalarApp = document.getElementById("btn-instalar-app");
+    const mensagemInstalado = document.getElementById("mensagem-instalado");
+    const tutorialInstalarIOS = document.getElementById("tutorial-instalar-ios");
+    const btnFecharTutorial = document.getElementById("btn-fechar-tutorial");
+
+    const rodandoComoApp = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    const ehIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+    if (rodandoComoApp) {
+      mensagemInstalado.classList.remove("escondido");
+    } else if (ehIOS) {
+      btnInstalarApp.classList.remove("escondido");
+      btnInstalarApp.addEventListener("click", () => {
+        tutorialInstalarIOS.classList.remove("escondido");
+      });
+    } else {
+      window.addEventListener("beforeinstallprompt", (evento) => {
+        evento.preventDefault();
+        promptInstalacao = evento;
+        btnInstalarApp.classList.remove("escondido");
+      });
+
+      btnInstalarApp.addEventListener("click", async () => {
+        if (!promptInstalacao) return;
+        promptInstalacao.prompt();
+        await promptInstalacao.userChoice;
+        promptInstalacao = null;
+        btnInstalarApp.classList.add("escondido");
+        mensagemInstalado.classList.remove("escondido");
+      });
+    }
+
+    btnFecharTutorial.addEventListener("click", () => {
+      tutorialInstalarIOS.classList.add("escondido");
+    });
+  </script>
+
+</body>
+</html>
