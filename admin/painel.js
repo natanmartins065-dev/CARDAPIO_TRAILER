@@ -181,6 +181,12 @@ function criarCardPedido(pedido) {
     acoes.appendChild(btnCancelar);
   }
 
+  const btnImprimir = document.createElement("button");
+  btnImprimir.className = "btn-primario btn-imprimir";
+  btnImprimir.textContent = "🖨️ Imprimir";
+  btnImprimir.addEventListener("click", () => imprimirPedido(pedido));
+  acoes.appendChild(btnImprimir);
+
   const btnExcluir = document.createElement("button");
   btnExcluir.className = "btn-excluir";
   btnExcluir.textContent = "🗑️ Excluir";
@@ -216,4 +222,44 @@ async function mudarStatus(pedidoId, novoStatus) {
   }
 
   carregarPedidos();
+}
+
+function imprimirPedido(pedido) {
+  const data = new Date(pedido.created_at).toLocaleString("pt-BR");
+
+  const itensTexto = (pedido.order_items || [])
+    .map((item) => {
+      const nomeQtd = item.quantity > 1 ? `${item.product_name} (${item.quantity}x)` : item.product_name;
+      const subtotal = Number(item.unit_price) * Number(item.quantity);
+      let linha = `${nomeQtd}\n   R$ ${subtotal.toFixed(2)}\n`;
+
+      const adicionais = item.order_item_adicionais || [];
+      if (adicionais.length > 0) {
+        linha += `   + ${adicionais.map((a) => `${a.adicional_name} (${a.quantidade}x)`).join(", ")}\n`;
+      }
+
+      const observacao = item.observacao || item.notes;
+      if (observacao) linha += `   Obs: ${observacao}\n`;
+
+      return linha;
+    })
+    .join("");
+
+  const texto =
+    `TremBao\n` +
+    `================================\n` +
+    `Pedido #${pedido.daily_number ?? "-"}\n` +
+    `${data}\n` +
+    `================================\n` +
+    `Cliente: ${pedido.customer_name}\n` +
+    `WhatsApp: ${pedido.customer_whatsapp}\n` +
+    `--------------------------------\n` +
+    itensTexto +
+    `--------------------------------\n` +
+    (pedido.notes ? `Obs. geral: ${pedido.notes}\n--------------------------------\n` : "") +
+    `TOTAL: R$ ${Number(pedido.total).toFixed(2)}\n` +
+    `\n\n\n`;
+
+  const base64 = btoa(unescape(encodeURIComponent(texto)));
+  window.location.href = "rawbt:base64," + base64;
 }
