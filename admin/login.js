@@ -2,12 +2,19 @@ const inputEmail = document.getElementById("input-email");
 const inputSenha = document.getElementById("input-senha");
 const erroLogin = document.getElementById("erro-login");
 const btnLogin = document.getElementById("btn-login");
+const linkVoltarCardapio = document.getElementById("link-voltar-cardapio");
 
 btnLogin.addEventListener("click", fazerLogin);
 
-// Permite logar apertando Enter no campo de senha
 inputSenha.addEventListener("keydown", (e) => {
   if (e.key === "Enter") fazerLogin();
+});
+
+// Intercepta o clique: em vez de empilhar uma entrada nova no histórico,
+// substitui a entrada do login.html pela do cardápio.
+linkVoltarCardapio.addEventListener("click", (e) => {
+  e.preventDefault();
+  window.location.replace("/index.html");
 });
 
 async function fazerLogin() {
@@ -34,9 +41,9 @@ async function fazerLogin() {
     return;
   }
 
-  // Login deu certo, o Supabase já guarda a sessão sozinho.
-  // Redireciona para o painel principal.
-  window.location.href = "index.html";
+  // Login deu certo — substitui a entrada do login.html pela do painel,
+  // em vez de empilhar (senão o login.html fica alcançável pelo botão físico)
+  window.location.replace("index.html");
 }
 
 function mostrarErro(mensagem) {

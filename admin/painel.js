@@ -23,7 +23,7 @@ async function verificarLoginEIniciar() {
   const { data: { session } } = await supabaseClient.auth.getSession();
 
   if (!session) {
-    window.location.href = "login.html";
+     window.location.replace("login.html");
     return;
   }
 
@@ -33,7 +33,7 @@ async function verificarLoginEIniciar() {
 
 supabaseClient.auth.onAuthStateChange((evento, sessao) => {
   if (evento === "SIGNED_OUT" || !sessao) {
-    window.location.href = "login.html";
+     window.location.replace("login.html");
   }
 });
 
@@ -72,7 +72,7 @@ function tocarSomNotificacao() {
 
 btnSair.addEventListener("click", async () => {
   await supabaseClient.auth.signOut();
-  window.location.href = "login.html";
+  window.location.replace("login.html");
 });
 
 async function carregarPedidos() {
